@@ -69,17 +69,48 @@ def process_log(strace_log):
                     if binary not in binaries:
                         binaries.append(binary)
 
+#    print(libraries)
+#    print(binaries)
+
 def get_touched_libs():
 
-    cwd = os.getcwd()
-    cmd = "docker run --rm \
-    -v %s/tests:/tests %s strace -q -e trace=file /usr/bin/python /tests/%s"\
-    % (cwd,new_img,test)
-    print(cmd)
-    os.system(cmd  + "> %s 2>&1" % (strace_log))
+    if not path.exists(strace_log):
+        cwd = os.getcwd()
+        cmd = "docker run --rm \
+        -v %s/tests:/tests %s strace -q -e trace=file /usr/bin/python /tests/%s"\
+        % (cwd,new_img,test)
+        print(cmd)
+        os.system(cmd  + "> %s 2>&1" % (strace_log))
 
     if path.exists(strace_log):
         process_log(strace_log)
+
+def print_report(bin_exec,lib_exec,adds):
+    print("The test " + test)
+    print("Exercise %d libraries" % (len(libraries)))
+    print("Exercise %d binaries" % (len(binaries)))
+    print("Of a total of %d new files on the image under test" % (len(adds)))
+    coverage = ((len(libraries) + len(binaries)) / len(adds) ) * 100
+    print("Giving a %f %s of coverage" % (coverage,'%'))
+
+def get_coverage():
+
+        bin_exec = []
+        lib_exec = []
+
+        get_touched_libs()
+        adds,dels,mods = process_json()
+        for element in adds:
+            for lib in libraries:
+                if lib in element.get("Name"):
+                    if lib not in lib_exec:
+                        lib_exec.append(lib)
+            for binary in binaries:
+                if binary in element.get("Name"):
+                    if binary not in bin_exec:
+                        bin_exec.append(binary)
+
+        print_report(bin_exec,lib_exec,adds)
 
 def main():
 
@@ -90,6 +121,8 @@ def main():
                help='Get added files')
     parser.add_argument('--touched_libs', dest='touched_libs', \
         action='store_true', help='Get the libs touched by test')
+    parser.add_argument('--get_coverage', dest='get_coverage', \
+        action='store_true', help='Get coverage')
 
     args = parser.parse_args()
 
@@ -97,6 +130,8 @@ def main():
         get_img_diff(args)
     if args.touched_libs:
         get_touched_libs()
+    if args.get_coverage:
+        get_coverage()
 
 if __name__== "__main__":
     main()
