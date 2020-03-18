@@ -1,5 +1,5 @@
 # Cont Cov
-Identify what libraries your test case is excersing on a contianer image
+Identify what libraries your test case is exercising on a container image
 
 ## Usage
 
@@ -39,7 +39,7 @@ container-diff diff \
 	--type=file --quiet --json > result.json 2>/dev/null
 
 Total files added: 70920
-Total files deleted : 149
+Total files deleted: 149
 Total files modified: 795
 
 The test numpy_test.py
@@ -53,15 +53,15 @@ Giving a 1.783700 % of coverage
 ## Files generated for debug
 
 * result.json: Shows the difference of base image and new image
-* strace.log: Show the strace of the syscalls excersised by the test under analysis
-* binaries_touched.txt: Show the list of binaries excersised by the test under analysis
-* libraries_touched.txt: Show the list of libraries excersised by the test under analysis
+* strace.log: Show the strace of the syscalls exercised by the test under analysis
+* binaries_touched.txt: Show the list of binaries exercised by the test under analysis
+* libraries_touched.txt: Show the list of libraries exercised by the test under analysis
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to
 discuss what you would like to change.
 
-Please make sure to update tests as appropriate.
+Please make sure to update the tests as appropriate.
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
