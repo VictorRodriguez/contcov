@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import argparse
 import os
 import re
@@ -8,7 +10,7 @@ base_img = "clearlinux:latest"
 new_img="stacks-tensorflow-mkl:latest"
 result_json="result.json"
 test="numpy_test.py"
-strace_log = "/tmp/log"
+strace_log = "strace.log"
 
 libraries = []
 binaries = []
@@ -51,6 +53,11 @@ def get_img_diff(args):
         for element in adds:
             print(element.get("Name"))
 
+def print_list(list_items,file_name):
+    with open(file_name, 'w') as f:
+        for item in list_items:
+                f.write("%s\n" % item)
+
 def process_log(strace_log):
     with open(strace_log) as fp:
         lines = fp.readlines()
@@ -69,8 +76,8 @@ def process_log(strace_log):
                     if binary not in binaries:
                         binaries.append(binary)
 
-#    print(libraries)
-#    print(binaries)
+    print_list(libraries,"libraries_touched.txt")
+    print_list(binaries,"binaries_touched.txt")
 
 def get_touched_libs():
 
@@ -93,12 +100,13 @@ def print_report(bin_exec,lib_exec,adds):
     coverage = ((len(libraries) + len(binaries)) / len(adds) ) * 100
     print("Giving a %f %s of coverage" % (coverage,'%'))
 
-def get_coverage():
+def get_coverage(args):
 
         bin_exec = []
         lib_exec = []
 
         get_touched_libs()
+        get_img_diff(args)
         adds,dels,mods = process_json()
         for element in adds:
             for lib in libraries:
@@ -114,24 +122,48 @@ def get_coverage():
 
 def main():
 
+    global base_img
+    global new_img
+    global test
+
     parser = argparse.ArgumentParser(description='Coverage tool')
-    parser.add_argument('--diff', dest='get_diff', action='store_true',
+    group_diff = parser.add_argument_group('Get container images diff')
+    group_diff.add_argument('--diff', dest='get_diff', action='store_true',
                help='Get the differnce of two images')
-    parser.add_argument('--added', dest='get_added', action='store_true',
+    group_diff.add_argument('--added', dest='get_added', action='store_true',
                help='Get added files')
-    parser.add_argument('--touched_libs', dest='touched_libs', \
-        action='store_true', help='Get the libs touched by test')
-    parser.add_argument('--get_coverage', dest='get_coverage', \
+    group_diff.add_argument('--base_image', dest='base_img', \
+        help='Base Image')
+    group_diff.add_argument('--new_image', dest='new_img', \
+        help='New Image')
+
+    group_coverage = parser.add_argument_group('Get % coverage of a test')
+    group_coverage.add_argument('--get_coverage', dest='get_coverage', \
         action='store_true', help='Get coverage')
+    group_coverage.add_argument('--test', dest='test', \
+        help='Test')
+
+    parser.add_argument('--touched_libs', dest='touched_libs', \
+        action='store_true', help='Get the libs touched by test (debug mode)')
+
 
     args = parser.parse_args()
 
-    if args.get_diff:
+    if args.get_diff \
+    or args.get_added:
         get_img_diff(args)
     if args.touched_libs:
         get_touched_libs()
     if args.get_coverage:
-        get_coverage()
+        get_coverage(args)
+
+    if args.base_img:
+        base_img = args.base_img
+    if args.new_img:
+        new_img = args.new_img
+    if args.test:
+        test = args.test
+
 
 if __name__== "__main__":
     main()
