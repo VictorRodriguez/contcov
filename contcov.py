@@ -23,6 +23,13 @@ def check_contdiff():
         print("ERROR: container-diff not working")
         sys.exit()
 
+def check_strace():
+    cmd = "strace -h"
+    ret = os.system(cmd + " > /dev/null 2>&1 ")
+    if ret:
+        print("ERROR: strace not working")
+        sys.exit()
+
 def process_json():
     adds = []
     dels = []
@@ -158,6 +165,7 @@ def main():
     args = parser.parse_args()
 
     check_contdiff()
+    check_strace()
 
     if args.get_diff \
     or args.get_added:
