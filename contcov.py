@@ -192,6 +192,9 @@ def main():
     if args.new_img:
         new_img = args.new_img
 
+    if args.test:
+        test = args.test
+
     if args.get_diff \
     or args.get_added:
         get_img_diff(args)
@@ -200,8 +203,6 @@ def main():
     if args.get_coverage:
         get_coverage(args)
 
-    if args.test:
-        test = args.test
     if args.clean:
         clean_files()
 
