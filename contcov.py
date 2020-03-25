@@ -4,6 +4,7 @@ import argparse
 import os
 import re
 import json
+import sys
 from os import path
 
 base_img = "clearlinux:latest"
@@ -14,6 +15,13 @@ strace_log = "strace.log"
 
 libraries = []
 binaries = []
+
+def check_contdiff():
+    cmd = "container-diff"
+    ret = os.system(cmd + " > /dev/null 2>&1 ")
+    if ret:
+        print("ERROR: container-diff not working")
+        sys.exit()
 
 def process_json():
     adds = []
@@ -148,6 +156,8 @@ def main():
 
 
     args = parser.parse_args()
+
+    check_contdiff()
 
     if args.get_diff \
     or args.get_added:
