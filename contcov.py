@@ -12,9 +12,24 @@ new_img="stacks-tensorflow-mkl:latest"
 result_json="result.json"
 test="numpy_test.py"
 strace_log = "strace.log"
+libraries_touched = "libraries_touched.txt"
+binaries_touched = "binaries_touched.txt"
 
 libraries = []
 binaries = []
+
+def clean_files():
+    if os.path.exists(result_json):
+        os.remove(result_json)
+
+    if os.path.exists(strace_log):
+        os.remove(strace_log)
+
+    if os.path.exists(libraries_touched):
+        os.remove(libraries_touched)
+
+    if os.path.exists(binaries_touched):
+        os.remove(binaries_touched)
 
 def check_contdiff():
     cmd = "container-diff"
@@ -54,10 +69,13 @@ def get_img_diff(args):
 
     if not path.exists(result_json):
         cmd = "container-diff diff daemon://%s \
-            daemon://%s --type=file --quiet --json > %s 2>/dev/null" \
+            daemon://%s --type=file --quiet --json > %s " \
             % (base_img,new_img,result_json)
         print(cmd)
-        os.system(cmd)
+        ret = os.system(cmd)
+        if ret:
+            print("ERROR: container-diff diff  not working")
+            sys.exit()
     adds,dels,mods = process_json()
 
     print("Total files added: " + str(len(adds)))
@@ -91,8 +109,8 @@ def process_log(strace_log):
                     if binary not in binaries:
                         binaries.append(binary)
 
-    print_list(libraries,"libraries_touched.txt")
-    print_list(binaries,"binaries_touched.txt")
+    print_list(libraries,libraries_touched)
+    print_list(binaries,binaries_touched)
 
 def get_touched_libs():
 
@@ -120,8 +138,8 @@ def get_coverage(args):
         bin_exec = []
         lib_exec = []
 
-        get_touched_libs()
         get_img_diff(args)
+        get_touched_libs()
         adds,dels,mods = process_json()
         for element in adds:
             for lib in libraries:
@@ -161,11 +179,18 @@ def main():
     parser.add_argument('--touched_libs', dest='touched_libs', \
         action='store_true', help='Get the libs touched by test (debug mode)')
 
+    parser.add_argument('--clean', dest='clean', \
+        action='store_true', help='Clean the log files')
 
     args = parser.parse_args()
 
     check_contdiff()
     check_strace()
+
+    if args.base_img:
+        base_img = args.base_img
+    if args.new_img:
+        new_img = args.new_img
 
     if args.get_diff \
     or args.get_added:
@@ -175,12 +200,10 @@ def main():
     if args.get_coverage:
         get_coverage(args)
 
-    if args.base_img:
-        base_img = args.base_img
-    if args.new_img:
-        new_img = args.new_img
     if args.test:
         test = args.test
+    if args.clean:
+        clean_files()
 
 
 if __name__== "__main__":
