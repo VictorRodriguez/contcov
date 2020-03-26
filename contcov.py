@@ -114,6 +114,9 @@ def process_log(strace_log):
 
 def get_touched_libs():
 
+    if os.path.exists(strace_log):
+        os.remove(strace_log)
+
     if not path.exists(strace_log):
         cwd = os.getcwd()
         cmd = "docker run --rm \
