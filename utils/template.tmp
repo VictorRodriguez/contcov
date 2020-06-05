@@ -1,0 +1,74 @@
+<html>
+<head>
+<style>
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 5px;
+  text-align: left;
+}
+</style>
+</head>
+<body>
+	<h1>Architecture Report for Image: {{img_name}}</h1>
+
+	{% if rpms|length >= 1 %}
+	<h2>Packages installed in the image by RPMs</h2>
+	<table>
+			<tr>
+				{% for head in heads %}
+					<th>{{head}}</th>
+				{% endfor %}
+			</tr>
+
+			{% for rpm in rpms %}
+			<tr>
+				<td>{{rpm["Name"]}}</td>
+				<td>{{rpm["Version"]}}</td>
+				<td>{{rpm["Size"]}}</td>
+			</tr>
+			{% endfor %}
+	</table>
+	{% endif %}
+
+	{% if pips|length >= 1 %}
+	<h2>Packages installed in the image by PIP</h2>
+	<table>
+			<tr>
+				{% for head in heads %}
+					<th>{{head}}</th>
+				{% endfor %}
+			</tr>
+
+			{% for pip in pips %}
+			<tr>
+				<td>{{pip["Name"]}}</td>
+				<td>{{pip["Version"]}}</td>
+				<td>{{pip["Size"]}}</td>
+			</tr>
+			{% endfor %}
+	</table>
+	{% endif %}
+
+	{% if apts|length >= 1 %}
+	<h2>Packages installed in the image by APT</h2>
+	<table>
+		<tr>
+			{% for head in heads %}
+				<th>{{head}}</th>
+			{% endfor %}
+		</tr>
+		{% for apt in apts %}
+			<tr>
+				<td>{{apt["Name"]}}</td>
+				<td>{{apt["Version"]}}</td>
+				<td>{{apt["Size"]}}</td>
+			</tr>
+		{% endfor %}
+	</table>
+	{% endif %}
+</body>
+</html>
+
