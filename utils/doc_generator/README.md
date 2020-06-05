@@ -3,6 +3,7 @@
 The goal of this is: 
 
 •	Print what packages are installed on the image (RPM, APT, PIP)
+
 •	Print what files are installed on the image related to the components (i.e. memcached)
 
 It was tested with the image sysstacks/dbrs-memcached-centos8:latest and ubuntu:18.04
