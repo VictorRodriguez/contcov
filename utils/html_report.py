@@ -1,8 +1,9 @@
 import json
 import sys
 import os
+import operator
 
-def print_html_report(report, title):
+def print_html_report(report, title, img_name, analyzetype):
     """
     Print the html report
     """
@@ -15,6 +16,8 @@ def print_html_report(report, title):
     heads = ["Name","Version","Size"]
     output_text = template.render(pkgs=report["pkgs"],\
         heads=heads,\
+        img_name=img_name,\
+        analyzetype=analyzetype,\
         title=title)
     report_title = 'report_%s.html' % (title)
     html_file = open(report_title, 'w')
@@ -53,14 +56,19 @@ def main():
 
     pkgs = []
     for element in data:
+        img_name = element["Image"]
+        analyzetype = element["AnalyzeType"]
         for count in range(0,len(element["Analysis"])):
             pkg_dict = {}
             pkg_dict["Name"]=element["Analysis"][count]["Name"]
             pkg_dict["Version"]=element["Analysis"][count]["Version"]
             pkg_dict["Size"]=element["Analysis"][count]["Size"]
             pkgs.append(pkg_dict)
+
+    pkgs.sort(key=operator.itemgetter('Size'))
+    pkgs.reverse()
     report["pkgs"] = pkgs
-    print_html_report(report,title)
+    print_html_report(report,title,img_name,analyzetype)
 
 if __name__ == "__main__":
     main()
