@@ -12,13 +12,16 @@ def print_html_report(report, title, img_name):
 
     template_loader = jinja2.FileSystemLoader(searchpath="./")
     template_env = jinja2.Environment(loader=template_loader)
-    template_file = "template.tmp"
+    template_file = "template.html"
     template = template_env.get_template(template_file)
     heads = ["Name", "Version", "Size"]
+    heads_comp = ["Name", "Size", "Component"]
     output_text = template.render(pips=report["pips"],
                                   rpms=report["rpms"],
                                   apts=report["apts"],
+                                  files_list=report["files"],
                                   heads=heads,
+                                  heads_comp=heads_comp,
                                   img_name=img_name,
                                   title=title)
     report_title = 'report_%s.html' % (title)
@@ -58,9 +61,18 @@ def main():
     except ValueError as error:
         print(error)
 
+    filepath = 'components'
+    components_new = []
+    with open(filepath) as fp:
+        components = fp.readlines()
+    for comp in components:
+        components_new.append(comp.strip())
+    components = components_new
+
     pips = []
     rpms = []
     apts = []
+    files_list = []
 
     for element in data:
         img_name = element["Image"]
@@ -86,6 +98,17 @@ def main():
                 apt_dict["Version"] = element["Analysis"][count]["Version"]
                 apt_dict["Size"] = element["Analysis"][count]["Size"]
                 apts.append(apt_dict)
+        if analyzetype == "File":
+            for count in range(0, len(element["Analysis"])):
+                file_dict = {}
+                name = element["Analysis"][count]["Name"]
+                size = element["Analysis"][count]["Size"]
+                for comp in components:
+                    if comp in name:
+                        file_dict["Name"] = name
+                        file_dict["Size"] = size
+                        file_dict["Component"] = comp
+                        files_list.append(file_dict)
 
     pips.sort(key=operator.itemgetter('Size'))
     pips.reverse()
@@ -99,6 +122,7 @@ def main():
     report["pips"] = pips
     report["rpms"] = rpms
     report["apts"] = apts
+    report["files"] = files_list
 
     print_html_report(report, title, img_name)
 

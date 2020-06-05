@@ -68,6 +68,24 @@ th, td {
 			</tr>
 		{% endfor %}
 	</table>
+
+	{% endif %}
+	{% if files_list|length >= 1 %}
+	<h2>Files assosiated with components</h2>
+	<table>
+		<tr>
+			{% for head in heads_comp %}
+				<th>{{head}}</th>
+			{% endfor %}
+		</tr>
+		{% for file_element in files_list %}
+			<tr>
+				<td>{{file_element["Name"]}}</td>
+				<td>{{file_element["Size"]}}</td>
+				<td>{{file_element["Component"]}}</td>
+			</tr>
+		{% endfor %}
+	</table>
 	{% endif %}
 </body>
 </html>
