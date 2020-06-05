@@ -38,4 +38,10 @@ it will generate a file:
 
 report_<report_title>.html
 
+## TODO
+
+For now the script only works for RPM and APT base images ( centos, rh, ubuntu,debian) 
+however I will extend for Clear Linux base. 
+For Clear Linux it will display the bundles and package that each bundle include (highlighting the ones that are duplicated) and sort them by size. But this is future work for next week.
+
 
