@@ -2,6 +2,23 @@ import sys
 import os
 import json
 
+
+def get_bundles(data):
+
+    bundles = []
+    for element in data:
+        if "msg" in element:
+            for key, value in element.iteritems():
+                if key == "msg" \
+                        and " -" not in value \
+                        and "Total" not in value \
+                        and "bundles" not in value \
+                        and "manifest" not in value:
+                    bundles.append(str(value.strip()))
+
+    return bundles
+
+
 def main():
     """
     main function
@@ -16,7 +33,8 @@ def main():
 
     results_json = "results.json"
     if not os.path.isfile(results_json):
-        cmd = "docker run -it %s swupd bundle-list -j > %s" % (clr_img,results_json)
+        cmd = "docker run -it %s swupd bundle-list -j > %s" % (
+            clr_img, results_json)
         os.system(cmd)
 
     data = {}
@@ -27,14 +45,9 @@ def main():
     except ValueError as error:
         print(error)
 
-    for element in data:
-        if "msg" in element:
-            for key, value in element.iteritems():
-                if key == "msg" \
-                    and " -" not in value \
-                    and "Total" not in value \
-                    and "bundles" not in value:
-                        print(value)
+    if data:
+        bundles = get_bundles(data)
+        print(bundles)
 
 if __name__ == "__main__":
     main()
