@@ -100,7 +100,7 @@ th, td {
 			<tr>
 				<td>{{bundle["Name"]}}</td>
 				<td>{{bundle["Size"]}}</td>
-				<td>{{bundle["Link"]}}</td>
+				<td><a href="{{'%s'%bundle['Link']}}">Files in bundle</a></td>
 			</tr>
 		{% endfor %}
 	</table>
