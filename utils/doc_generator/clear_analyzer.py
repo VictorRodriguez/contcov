@@ -1,12 +1,13 @@
 import sys
 import os
 import json
+import re
 
 
 def get_size(bundle, clr_img):
 
     result_json = ".bundle.json"
-    cmd = "docker run -it %s swupd bundle-info %s -j > %s" % (
+    cmd = "docker run -u 0 -it %s swupd bundle-info %s -j > %s" % (
         clr_img, bundle, result_json)
     os.system(cmd)
     data = {}
@@ -20,8 +21,8 @@ def get_size(bundle, clr_img):
             if "msg" in element:
                 for key, value in element.iteritems():
                     if key == "msg" and "Size bundle" in value:
-                        size = str(value.strip().split(":")[1])
-                        return size
+                        size = str(value.strip().split(":")[1]).split(" ")[1]
+                        return int(float(size))
 
 
 def get_bundles(results_json):
@@ -60,11 +61,9 @@ def main():
     clr_img = sys.argv[1]
 
     results_json = "results.json"
-    if not os.path.isfile(results_json):
-        cmd = "docker run -it %s swupd bundle-list -j > %s" % (
-            clr_img, results_json)
-        os.system(cmd)
-
+    cmd = "docker run -it %s swupd bundle-list -j > %s" % (
+        clr_img, results_json)
+    os.system(cmd)
     get_bundles(results_json)
 
 

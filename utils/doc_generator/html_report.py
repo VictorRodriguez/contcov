@@ -45,10 +45,9 @@ def analyze_clear(clr_img):
     bundles_list = []
     size = 0
     results_json = "clear_results.json"
-    if not os.path.isfile(results_json):
-        cmd = "docker run -it %s swupd bundle-list -j > %s" % (
-            clr_img, results_json)
-        os.system(cmd)
+    cmd = "docker run -it %s swupd bundle-list -j > %s" % (
+        clr_img, results_json)
+    os.system(cmd)
     bundles = get_bundles(results_json)
     for bundle_name in bundles:
         bundle_dic = {}
@@ -103,7 +102,7 @@ def main():
 
     for element in data:
         img_name = element["Image"]
-        if "clearlinux" in img_name and not bundles_list:
+        if "clear" in img_name and not bundles_list:
             bundles_list = analyze_clear(img_name)
         analyzetype = element["AnalyzeType"]
         if analyzetype == "Pip":
@@ -153,6 +152,8 @@ def main():
     report["apts"] = apts
     report["files"] = files_list
     if bundles_list:
+        bundles_list.sort(key=operator.itemgetter('Size'))
+        bundles_list.reverse()
         report["bundles"] = bundles_list
 
     print_html_report(report, title, img_name)
