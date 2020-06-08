@@ -2,7 +2,10 @@ import json
 import sys
 import os
 import operator
+from clear_analyzer import get_bundles
 
+
+base_link = "https://raw.githubusercontent.com/clearlinux/clr-bundles/master/bundles/"
 
 def print_html_report(report, title, img_name):
     """
@@ -20,6 +23,7 @@ def print_html_report(report, title, img_name):
                                   rpms=report["rpms"],
                                   apts=report["apts"],
                                   files_list=report["files"],
+                                  bundles=report["bundles"],
                                   heads=heads,
                                   heads_comp=heads_comp,
                                   img_name=img_name,
@@ -33,6 +37,24 @@ def print_html_report(report, title, img_name):
 def error_msg():
     print("Error")
 
+def analyze_clear(clr_img):
+    bundle_dic = {}
+    bundles_list = []
+    size = 0
+    results_json = "clear_results.json"
+    if not os.path.isfile(results_json):
+        cmd = "docker run -it %s swupd bundle-list -j > %s" % (
+            clr_img, results_json)
+        print(cmd)
+        os.system(cmd)
+    bundles = get_bundles(results_json)
+    for bundle_name in bundles:
+        bundle_dic = {}
+        bundle_dic["Name"] = bundle_name
+        bundle_dic["Size"] = size
+        bundle_dic["Link"] = base_link + bundle_name
+        bundles_list.append(bundle_dic)
+    return bundles_list
 
 def main():
     """
@@ -73,9 +95,12 @@ def main():
     rpms = []
     apts = []
     files_list = []
+    bundles_list = []
 
     for element in data:
         img_name = element["Image"]
+        if "clearlinux" in img_name and not bundles_list:
+            bundles_list = analyze_clear(img_name)
         analyzetype = element["AnalyzeType"]
         if analyzetype == "Pip":
             for count in range(0, len(element["Analysis"])):
@@ -123,6 +148,8 @@ def main():
     report["rpms"] = rpms
     report["apts"] = apts
     report["files"] = files_list
+    if bundles_list:
+        report["bundles"] = bundles_list
 
     print_html_report(report, title, img_name)
 

@@ -87,6 +87,24 @@ th, td {
 		{% endfor %}
 	</table>
 	{% endif %}
+
+	{% if bundles|length >= 1 %}
+	<h2>Bundles on the image</h2>
+	<table>
+		<tr>
+			{% for head in heads_comp %}
+				<th>{{head}}</th>
+			{% endfor %}
+		</tr>
+		{% for bundle in bundles %}
+			<tr>
+				<td>{{bundle["Name"]}}</td>
+				<td>{{bundle["Size"]}}</td>
+				<td>{{bundle["Link"]}}</td>
+			</tr>
+		{% endfor %}
+	</table>
+	{% endif %}
 </body>
 </html>
 

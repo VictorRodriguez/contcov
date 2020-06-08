@@ -3,19 +3,27 @@ import os
 import json
 
 
-def get_bundles(data):
+def get_bundles(results_json):
+
+    data = {}
+
+    try:
+        with open(results_json) as json_file:
+            data = json.load(json_file)
+    except ValueError as error:
+        print(error)
 
     bundles = []
-    for element in data:
-        if "msg" in element:
-            for key, value in element.iteritems():
-                if key == "msg" \
-                        and " -" not in value \
-                        and "Total" not in value \
-                        and "bundles" not in value \
-                        and "manifest" not in value:
-                    bundles.append(str(value.strip()))
-
+    if data:
+        for element in data:
+            if "msg" in element:
+                for key, value in element.iteritems():
+                    if key == "msg" \
+                            and " -" not in value \
+                            and "Total" not in value \
+                            and "bundles" not in value \
+                            and "manifest" not in value:
+                        bundles.append(str(value.strip()))
     return bundles
 
 
@@ -37,17 +45,7 @@ def main():
             clr_img, results_json)
         os.system(cmd)
 
-    data = {}
-
-    try:
-        with open(results_json) as json_file:
-            data = json.load(json_file)
-    except ValueError as error:
-        print(error)
-
-    if data:
-        bundles = get_bundles(data)
-        print(bundles)
+    get_bundles(results_json)
 
 if __name__ == "__main__":
     main()
