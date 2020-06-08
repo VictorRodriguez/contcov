@@ -3,10 +3,30 @@ import os
 import json
 
 
+def get_size(bundle, clr_img):
+
+    result_json = ".bundle.json"
+    cmd = "docker run -it %s swupd bundle-info %s -j > %s" % (
+        clr_img, bundle, result_json)
+    os.system(cmd)
+    data = {}
+    try:
+        with open(result_json) as json_file:
+            data = json.load(json_file)
+    except ValueError as error:
+        print(error)
+    if data:
+        for element in data:
+            if "msg" in element:
+                for key, value in element.iteritems():
+                    if key == "msg" and "Size bundle" in value:
+                        size = str(value.strip().split(":")[1])
+                        return size
+
+
 def get_bundles(results_json):
 
     data = {}
-
     try:
         with open(results_json) as json_file:
             data = json.load(json_file)
@@ -46,6 +66,7 @@ def main():
         os.system(cmd)
 
     get_bundles(results_json)
+
 
 if __name__ == "__main__":
     main()

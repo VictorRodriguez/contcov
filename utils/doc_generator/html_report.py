@@ -3,9 +3,11 @@ import sys
 import os
 import operator
 from clear_analyzer import get_bundles
+from clear_analyzer import get_size
 
 
 base_link = "https://raw.githubusercontent.com/clearlinux/clr-bundles/master/bundles/"
+
 
 def print_html_report(report, title, img_name):
     """
@@ -37,6 +39,7 @@ def print_html_report(report, title, img_name):
 def error_msg():
     print("Error")
 
+
 def analyze_clear(clr_img):
     bundle_dic = {}
     bundles_list = []
@@ -45,16 +48,17 @@ def analyze_clear(clr_img):
     if not os.path.isfile(results_json):
         cmd = "docker run -it %s swupd bundle-list -j > %s" % (
             clr_img, results_json)
-        print(cmd)
         os.system(cmd)
     bundles = get_bundles(results_json)
     for bundle_name in bundles:
         bundle_dic = {}
         bundle_dic["Name"] = bundle_name
+        size = get_size(bundle_name, clr_img)
         bundle_dic["Size"] = size
         bundle_dic["Link"] = base_link + bundle_name
         bundles_list.append(bundle_dic)
     return bundles_list
+
 
 def main():
     """
