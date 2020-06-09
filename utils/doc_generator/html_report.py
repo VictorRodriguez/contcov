@@ -58,7 +58,6 @@ def analyze_clear(clr_img):
         bundles_list.append(bundle_dic)
     return bundles_list
 
-
 def main():
     """
     main function
@@ -68,7 +67,7 @@ def main():
     title = "test"
     if len(sys.argv) < 3:
         print("\nERROR : Missing arguments, the expected arguments are:")
-        print("\n   %s <result.json> <title>\n" % (sys.argv[0]))
+        print(("\n   %s <result.json> <title>\n" % (sys.argv[0])))
         print("\n")
         sys.exit(0)
 
@@ -102,7 +101,7 @@ def main():
 
     for element in data:
         img_name = element["Image"]
-        if "clear" in img_name and not bundles_list:
+        if not bundles_list:
             bundles_list = analyze_clear(img_name)
         analyzetype = element["AnalyzeType"]
         if analyzetype == "Pip":

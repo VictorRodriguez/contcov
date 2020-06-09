@@ -19,7 +19,7 @@ def get_size(bundle, clr_img):
     if data:
         for element in data:
             if "msg" in element:
-                for key, value in element.iteritems():
+                for key, value in element.items():
                     if key == "msg" and "Size bundle" in value:
                         size = str(value.strip().split(":")[1]).split(" ")[1]
                         return int(float(size))
@@ -38,7 +38,7 @@ def get_bundles(results_json):
     if data:
         for element in data:
             if "msg" in element:
-                for key, value in element.iteritems():
+                for key, value in element.items():
                     if key == "msg" \
                             and " -" not in value \
                             and "Total" not in value \
