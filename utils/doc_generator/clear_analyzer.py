@@ -21,8 +21,13 @@ def get_size(bundle, clr_img):
             if "msg" in element:
                 for key, value in element.items():
                     if key == "msg" and "Size bundle" in value:
-                        size = str(value.strip().split(":")[1]).split(" ")[1]
-                        return int(float(size))
+                        if "MB" in value:
+                            size = str(value.strip().split(":")[1]).split(" ")[1]
+                            return float(size)
+                        if "GB" in value:
+                            size = str(value.strip().split(":")[1]).split(" ")[1]
+                            size = 1000 * float(size)
+                            return size
 
 
 def get_bundles(results_json):
@@ -64,8 +69,8 @@ def main():
     cmd = "docker run -it %s swupd bundle-list -j > %s" % (
         clr_img, results_json)
     os.system(cmd)
-    get_bundles(results_json)
-
-
+    bundles = get_bundles(results_json)
+    for bundle in bundles:
+        size = get_size(bundle,clr_img)
 if __name__ == "__main__":
     main()
