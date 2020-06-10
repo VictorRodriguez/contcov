@@ -4,6 +4,7 @@ import os
 import operator
 from clear_analyzer import get_bundles
 from clear_analyzer import get_size
+from clear_analyzer import has_entry_point
 
 
 base_link = "https://raw.githubusercontent.com/clearlinux/clr-bundles/master/bundles/"
@@ -44,10 +45,17 @@ def analyze_clear(clr_img):
     bundle_dic = {}
     bundles_list = []
     size = 0
-    results_json = "clear_results.json"
-    cmd = "docker run -it %s swupd bundle-list -j > %s" % (
-        clr_img, results_json)
-    os.system(cmd)
+    results_json = ".clear_results.json"
+    if has_entry_point:
+        cmd = 'docker run -it --entrypoint="" %s swupd bundle-list -j > %s' % (
+            clr_img, results_json)
+        if os.system(cmd):
+            return bundles_list
+    else:
+        cmd = "docker run -it %s swupd bundle-list -j > %s" % (
+            clr_img, results_json)
+        if os.system(cmd):
+            return bundles_list
     bundles = get_bundles(results_json)
     for bundle_name in bundles:
         bundle_dic = {}
@@ -154,7 +162,8 @@ def main():
         bundles_list.sort(key=operator.itemgetter('Size'))
         bundles_list.reverse()
         report["bundles"] = bundles_list
-
+    else:
+        report["bundles"] = []
     print_html_report(report, title, img_name)
 
 

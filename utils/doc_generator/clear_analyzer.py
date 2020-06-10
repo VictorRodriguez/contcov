@@ -7,9 +7,17 @@ import re
 def get_size(bundle, clr_img):
 
     result_json = ".bundle.json"
-    cmd = "docker run -u 0 -it %s swupd bundle-info %s -j > %s" % (
-        clr_img, bundle, result_json)
-    os.system(cmd)
+    if has_entry_point:
+        cmd = 'docker run -u 0 -it --entrypoint="" %s swupd bundle-info %s -j > %s' % (
+            clr_img, bundle, result_json)
+        print(cmd)
+        os.system(cmd)
+    else:
+        cmd = "docker run -u 0 -it %s swupd bundle-info %s -j > %s" % (
+            clr_img, bundle, result_json)
+        print(cmd)
+        os.system(cmd)
+
     data = {}
     try:
         with open(result_json) as json_file:
@@ -28,6 +36,8 @@ def get_size(bundle, clr_img):
                             size = str(value.strip().split(":")[1]).split(" ")[1]
                             size = 1000 * float(size)
                             return size
+    else:
+        return 0
 
 
 def get_bundles(results_json):
@@ -52,6 +62,17 @@ def get_bundles(results_json):
                         bundles.append(str(value.strip()))
     return bundles
 
+def has_entry_point(clr_img):
+    cmd = "docker inspect --format='{{.Config.Entrypoint}}' %s > .log" % (clr_img)
+    os.system(cmd)
+    with open(".log") as fp:
+        lines = fp.readlines()
+        for line in lines:
+            if "[]" in line:
+                ret = False
+            else:
+                ret = True
+    return ret
 
 def main():
     """
@@ -65,12 +86,26 @@ def main():
 
     clr_img = sys.argv[1]
 
-    results_json = "results.json"
-    cmd = "docker run -it %s swupd bundle-list -j > %s" % (
-        clr_img, results_json)
-    os.system(cmd)
+    results_json = ".clear_results.json"
+    if has_entry_point:
+        cmd = 'docker run -it --entrypoint="" %s swupd bundle-list -j > %s' % (
+            clr_img, results_json)
+        print(cmd)
+        if os.system(cmd):
+            sys.exit(0)
+    else:
+        cmd = "docker run -it %s swupd bundle-list -j > %s" % (
+            clr_img, results_json)
+        print(cmd)
+        os.system(cmd)
+        if os.system(cmd):
+            sys.exit(0)
+
     bundles = get_bundles(results_json)
+
     for bundle in bundles:
         size = get_size(bundle,clr_img)
+        print(bundle)
+        print(size)
 if __name__ == "__main__":
     main()
