@@ -1,7 +1,10 @@
-result.json
 *.txt
 .*pyc
 *.json
+*.html
+*.bak
+*log
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
