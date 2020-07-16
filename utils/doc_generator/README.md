@@ -38,6 +38,16 @@ it will generate a file:
 
 report_<report_title>.html
 
+## Dockerfile use case
+
+```
+docker build . -t contcov_runner
+docker run -it -v /tmp/result:/opt/result \
+	-v /var/run/docker.sock:/var/run/docker.sock \
+	--env IMG="daemon://dss-redis-centos:vtg3ax9b37" \
+	--env REPORT_TITLE="redis-centos" \
+	contcov_runner
+```
 ## TODO
 
 * For Clear Linux it should highlighting the packages that are duplicated on the instealled bundles
